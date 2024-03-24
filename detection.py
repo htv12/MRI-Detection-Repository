@@ -8,20 +8,27 @@ model = project.version(3).model  # Roboflow version number
 
 # infer on a local image
 def str_infer(filePath):  # Run the defect detection model
-    return model.predict(filePath, confidence=50).json()  # Returns the detection data from the image
+    return model.predict(filePath, confidence=30).json()  # Returns the detection data from the image
 
 
 def img_infer(filePath):
-    return model.predict(filePath, confidence=50).plot()
+    return model.predict(filePath, confidence=30).plot()
 
 def str_parse(inference):
+    output = ''
     if 'chiari' in inference:  # Check if the inference contains chiari
-        return 'Chiari'
+        output = 'Chiari'
+    if 'syrinx' in inference and 'chiari' in inference:
+        output = (output + '\n')
     if 'syrinx' in inference:
-        return 'Syrinx'
-    if not 'syrinx' in inference or 'chiari' in inference:
-        return 'Nothing Detected'
+        output = (output + 'Syrinx')
+    if not 'syrinx' in inference and not 'chiari' in inference:
+        output =  'Nothing Detected'
+    return output
 
 
 def dict_parse(inference):
-    return str(round(inference.get('predictions')[0].get('confidence'), 2))
+    try:
+        return str(round(inference.get('predictions')[0].get('confidence'), 2))
+    except:
+        return 'N/A'
